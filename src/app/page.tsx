@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { Plus, ArrowRight, Rocket, CheckCircle2, Clock, Circle, CalendarDays, Zap } from "lucide-react";
+import { Plus, ArrowRight, Rocket, CheckCircle2, Clock, Circle, CalendarDays, Zap, Brain } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { DashboardCard } from "@/components/DashboardCard";
 import { TaskCard } from "@/components/TaskCard";
@@ -101,6 +101,26 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
+
+        {/* Brain Dump quick action */}
+        <Link href="/dump" className="block">
+          <div className="bg-gradient-to-r from-accent/15 via-accent/10 to-primary/10 rounded-2xl border border-accent/25 p-4 hover:border-accent/40 hover:shadow-md transition-all cursor-pointer group">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
+                <Brain className="w-5 h-5 text-accent" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-sm text-foreground">Got a lot on your mind?</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Dump it all out — Rosie will sort it into tasks for you. ✨
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-accent text-xs font-medium group-hover:gap-2 transition-all">
+                Brain Dump <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </div>
+          </div>
+        </Link>
 
         {/* Main content grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

@@ -7,10 +7,9 @@ import { TaskCard } from "@/components/TaskCard";
 import { TaskModal } from "@/components/TaskModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useTasks, type Task, type TaskCategory, type TaskStatus } from "@/lib/store";
+import { useTasks, type Task, type TaskStatus } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES: (TaskCategory | "All")[] = ["All", "Home", "Kids", "Work", "Personal", "Health", "Errands"];
 const STATUSES: { value: TaskStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
   { value: "todo", label: "To Do" },
@@ -21,14 +20,14 @@ const STATUSES: { value: TaskStatus | "all"; label: string }[] = [
 export default function TasksPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<TaskCategory | "All">("All");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [search, setSearch] = useState("");
-  const { tasks } = useTasks();
+  const { tasks, categories } = useTasks();
 
   const filtered = useMemo(() => {
     return tasks.filter((t) => {
-      if (categoryFilter !== "All" && t.category !== categoryFilter) return false;
+      if (categoryFilter !== "all" && t.category !== categoryFilter) return false;
       if (statusFilter !== "all" && t.status !== statusFilter) return false;
       if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
@@ -94,18 +93,30 @@ export default function TasksPage() {
               <span className="text-xs text-muted-foreground font-medium">Category</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {CATEGORIES.map((cat) => (
+              {/* "All" pill */}
+              <button
+                onClick={() => setCategoryFilter("all")}
+                className={cn(
+                  "px-3 py-1 rounded-full text-xs font-medium transition-all",
+                  categoryFilter === "all"
+                    ? "bg-primary text-white shadow-sm shadow-primary/20"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                )}
+              >
+                All
+              </button>
+              {categories.map((cat) => (
                 <button
-                  key={cat}
-                  onClick={() => setCategoryFilter(cat)}
+                  key={cat.id}
+                  onClick={() => setCategoryFilter(cat.id)}
                   className={cn(
                     "px-3 py-1 rounded-full text-xs font-medium transition-all",
-                    categoryFilter === cat
+                    categoryFilter === cat.id
                       ? "bg-primary text-white shadow-sm shadow-primary/20"
                       : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                   )}
                 >
-                  {cat}
+                  {cat.emoji} {cat.name}
                 </button>
               ))}
             </div>

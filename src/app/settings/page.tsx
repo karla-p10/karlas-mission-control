@@ -15,10 +15,222 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Camera, Calendar, Bell, Palette, Shield, RefreshCw, CheckCircle2, ExternalLink } from "lucide-react";
+import {
+  Camera, Calendar, Bell, Palette, Shield, RefreshCw,
+  CheckCircle2, ExternalLink, Plus, Trash2, Pencil, X, Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTasks, COLOR_MAP, type Category } from "@/lib/store";
+
+// Available color options for the category color picker
+const COLOR_OPTIONS = Object.keys(COLOR_MAP) as string[];
+
+function CategoryCard({ cat }: { cat: Category }) {
+  const { tasks, updateCategory, deleteCategory } = useTasks();
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState(cat.name);
+  const [editEmoji, setEditEmoji] = useState(cat.emoji);
+  const [editColor, setEditColor] = useState(cat.color);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const usageCount = tasks.filter((t) => t.category === cat.id).length;
+  const style = COLOR_MAP[cat.color] ?? COLOR_MAP.teal;
+
+  const handleSave = () => {
+    updateCategory(cat.id, { name: editName.trim() || cat.name, emoji: editEmoji, color: editColor });
+    setEditing(false);
+  };
+
+  const handleDelete = () => {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    deleteCategory(cat.id);
+  };
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-primary bg-primary/5">
+        {/* Emoji input */}
+        <Input
+          value={editEmoji}
+          onChange={(e) => setEditEmoji(e.target.value)}
+          className="w-14 rounded-lg text-center text-lg px-1"
+          maxLength={2}
+        />
+        {/* Name input */}
+        <Input
+          value={editName}
+          onChange={(e) => setEditName(e.target.value)}
+          className="flex-1 rounded-lg"
+          placeholder="Category name"
+          autoFocus
+          onKeyDown={(e) => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") setEditing(false); }}
+        />
+        {/* Color dots */}
+        <div className="flex gap-1.5 flex-wrap max-w-[120px]">
+          {COLOR_OPTIONS.map((c) => (
+            <button
+              key={c}
+              title={c}
+              onClick={() => setEditColor(c)}
+              className={cn(
+                "w-5 h-5 rounded-full transition-all hover:scale-110 border-2",
+                COLOR_MAP[c].dot,
+                editColor === c ? "border-foreground scale-110" : "border-transparent"
+              )}
+            />
+          ))}
+        </div>
+        {/* Save / Cancel */}
+        <button onClick={handleSave} className="text-emerald-600 hover:text-emerald-700">
+          <Check className="w-4 h-4" />
+        </button>
+        <button onClick={() => setEditing(false)} className="text-muted-foreground hover:text-foreground">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/30 transition-colors group">
+      {/* Badge preview */}
+      <span className={cn(
+        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium min-w-[80px] justify-center",
+        style.bg, style.text
+      )}>
+        <span>{cat.emoji}</span>
+        <span>{cat.name}</span>
+      </span>
+
+      {/* Color dot */}
+      <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", style.dot)} />
+
+      {/* Usage count */}
+      <span className="text-xs text-muted-foreground flex-1">{usageCount} task{usageCount !== 1 ? "s" : ""}</span>
+
+      {/* Actions */}
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+          onClick={() => { setEditing(true); setConfirmDelete(false); }}
+        >
+          <Pencil className="w-3.5 h-3.5" />
+        </Button>
+        {confirmDelete ? (
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-destructive font-medium">
+              {usageCount > 0 ? `${usageCount} tasks affected` : "Delete?"}
+            </span>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2 rounded-lg text-destructive hover:bg-destructive/10 text-xs"
+              onClick={handleDelete}
+            >
+              Yes
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2 rounded-lg text-muted-foreground text-xs"
+              onClick={() => setConfirmDelete(false)}
+            >
+              No
+            </Button>
+          </div>
+        ) : (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-destructive"
+            onClick={handleDelete}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AddCategoryRow() {
+  const { addCategory } = useTasks();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [emoji, setEmoji] = useState("📌");
+  const [color, setColor] = useState("teal");
+
+  const handleAdd = () => {
+    if (!name.trim()) return;
+    addCategory({ name: name.trim(), emoji, color });
+    setName("");
+    setEmoji("📌");
+    setColor("teal");
+    setOpen(false);
+  };
+
+  if (!open) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="rounded-xl gap-1.5 text-muted-foreground w-full border-dashed"
+        onClick={() => setOpen(true)}
+      >
+        <Plus className="w-3.5 h-3.5" />
+        Add Category
+      </Button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-primary bg-primary/5">
+      <Input
+        value={emoji}
+        onChange={(e) => setEmoji(e.target.value)}
+        className="w-14 rounded-lg text-center text-lg px-1"
+        maxLength={2}
+        placeholder="📌"
+      />
+      <Input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="flex-1 rounded-lg"
+        placeholder="Category name"
+        autoFocus
+        onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); if (e.key === "Escape") setOpen(false); }}
+      />
+      <div className="flex gap-1.5 flex-wrap max-w-[120px]">
+        {COLOR_OPTIONS.map((c) => (
+          <button
+            key={c}
+            title={c}
+            onClick={() => setColor(c)}
+            className={cn(
+              "w-5 h-5 rounded-full transition-all hover:scale-110 border-2",
+              COLOR_MAP[c].dot,
+              color === c ? "border-foreground scale-110" : "border-transparent"
+            )}
+          />
+        ))}
+      </div>
+      <Button size="sm" className="rounded-lg bg-primary text-white text-xs" onClick={handleAdd} disabled={!name.trim()}>
+        Add
+      </Button>
+      <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
+        <X className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
 
 export default function SettingsPage() {
+  const { categories } = useTasks();
   const [name, setName] = useState("Karla");
   const [email, setEmail] = useState("karla@family.com");
   const [notifications, setNotifications] = useState({
@@ -111,6 +323,21 @@ export default function SettingsPage() {
                 "Save Changes"
               )}
             </Button>
+          </div>
+        </SettingsSection>
+
+        {/* Categories */}
+        <SettingsSection
+          title="Categories"
+          description="Organize tasks with custom categories"
+        >
+          <div className="px-6 py-5 space-y-2">
+            {categories.map((cat) => (
+              <CategoryCard key={cat.id} cat={cat} />
+            ))}
+            <div className="pt-1">
+              <AddCategoryRow />
+            </div>
           </div>
         </SettingsSection>
 

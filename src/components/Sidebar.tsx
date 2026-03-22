@@ -8,6 +8,7 @@ import {
   Calendar,
   Settings,
   Sparkles,
+  Brain,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dump", label: "Brain Dump", icon: Brain, special: true },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -57,8 +59,30 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {navItems.map(({ href, label, icon: Icon, special }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+          if (special) {
+            // Brain Dump — give it a special coral/accent treatment
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={onClose}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                  active
+                    ? "bg-accent text-white shadow-sm shadow-accent/20"
+                    : "text-accent/90 hover:text-accent hover:bg-accent/10 border border-accent/20"
+                )}
+              >
+                <Icon className="w-4 h-4 flex-shrink-0" />
+                {label}
+                <span className="ml-auto text-[11px]">✨</span>
+              </Link>
+            );
+          }
+
           return (
             <Link
               key={href}

@@ -19,9 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTasks, type Task, type TaskCategory, type TaskStatus, type TaskPriority } from "@/lib/store";
+import { useTasks, type Task, type TaskStatus, type TaskPriority } from "@/lib/store";
 
-const CATEGORIES: TaskCategory[] = ["Home", "Kids", "Work", "Personal", "Health", "Errands"];
 const STATUSES: { value: TaskStatus; label: string }[] = [
   { value: "todo", label: "To Do" },
   { value: "in-progress", label: "In Progress" },
@@ -37,21 +36,25 @@ interface TaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task?: Task | null;
+  /** Pre-fill a specific category id */
+  defaultCategory?: string;
 }
 
-const defaultForm = {
-  title: "",
-  description: "",
-  category: "Personal" as TaskCategory,
-  status: "todo" as TaskStatus,
-  priority: "medium" as TaskPriority,
-  dueDate: "",
-  assignee: "Karla",
-};
-
-export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
-  const { addTask, updateTask } = useTasks();
+export function TaskModal({ open, onOpenChange, task, defaultCategory }: TaskModalProps) {
+  const { addTask, updateTask, categories } = useTasks();
   const isEdit = !!task;
+
+  // Pick a sensible default category id
+  const firstCategoryId = categories[0]?.id ?? "personal";
+  const defaultForm = {
+    title: "",
+    description: "",
+    category: defaultCategory ?? firstCategoryId,
+    status: "todo" as TaskStatus,
+    priority: "medium" as TaskPriority,
+    dueDate: "",
+    assignee: "Karla",
+  };
 
   const [form, setForm] = useState(defaultForm);
 
@@ -67,9 +70,10 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
         assignee: task.assignee ?? "Karla",
       });
     } else {
-      setForm(defaultForm);
+      setForm({ ...defaultForm, category: defaultCategory ?? firstCategoryId });
     }
-  }, [task, open]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task, open, categories]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,13 +137,18 @@ export function TaskModal({ open, onOpenChange, task }: TaskModalProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">Category</Label>
-              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v as TaskCategory })}>
+              <Select value={form.category} onValueChange={(v) => v && setForm({ ...form, category: v })}>
                 <SelectTrigger className="rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
-                  {CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      <span className="flex items-center gap-1.5">
+                        <span>{c.emoji}</span>
+                        <span>{c.name}</span>
+                      </span>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
