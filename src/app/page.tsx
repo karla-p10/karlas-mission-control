@@ -1,65 +1,219 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useMemo } from "react";
+import { format } from "date-fns";
+import { Plus, ArrowRight, Rocket, CheckCircle2, Clock, Circle, CalendarDays, Zap } from "lucide-react";
+import { AppShell } from "@/components/AppShell";
+import { DashboardCard } from "@/components/DashboardCard";
+import { TaskCard } from "@/components/TaskCard";
+import { TaskModal } from "@/components/TaskModal";
+import { Button } from "@/components/ui/button";
+import { useTasks, type Task } from "@/lib/store";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+
+// Mock upcoming events
+const MOCK_EVENTS = [
+  { id: "e1", title: "School PTA Meeting", time: "9:00 AM", color: "bg-primary/10 text-primary border-primary/20" },
+  { id: "e2", title: "Jake's Soccer Practice", time: "4:30 PM", color: "bg-pink-50 text-pink-700 border-pink-200" },
+  { id: "e3", title: "Team standup", time: "10:00 AM", color: "bg-blue-50 text-blue-700 border-blue-200", tomorrow: true },
+  { id: "e4", title: "Dentist — Emma", time: "2:00 PM", color: "bg-amber-50 text-amber-700 border-amber-200", tomorrow: true },
+];
+
+export default function DashboardPage() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const { tasks } = useTasks();
+
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+
+  const todayTasks = useMemo(
+    () => tasks.filter((t) => t.dueDate === todayStr),
+    [tasks, todayStr]
+  );
+
+  const stats = useMemo(() => ({
+    total: tasks.length,
+    done: tasks.filter((t) => t.status === "done").length,
+    inProgress: tasks.filter((t) => t.status === "in-progress").length,
+    todo: tasks.filter((t) => t.status === "todo").length,
+  }), [tasks]);
+
+  const todayEvents = MOCK_EVENTS.filter((e) => !e.tomorrow);
+  const tomorrowEvents = MOCK_EVENTS.filter((e) => e.tomorrow);
+
+  const handleEdit = (task: Task) => {
+    setEditTask(task);
+    setModalOpen(true);
+  };
+
+  const handleAddTask = () => {
+    setEditTask(null);
+    setModalOpen(true);
+  };
+
+  const hour = today.getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <AppShell onAddTask={handleAddTask}>
+      <div className="p-6 max-w-7xl mx-auto space-y-6">
+
+        {/* Welcome header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Rocket className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-primary">
+                {format(today, "EEEE, MMMM d")}
+              </span>
+            </div>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">
+              {greeting}, Karla! 👋
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              {stats.done} of {stats.total} tasks done today. You&rsquo;ve got this.
+            </p>
+          </div>
+          <Button
+            onClick={handleAddTask}
+            className="bg-primary hover:bg-primary/90 text-white rounded-xl gap-2 hidden sm:flex shadow-lg shadow-primary/20"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <Plus className="w-4 h-4" />
+            Add Task
+          </Button>
         </div>
-      </main>
-    </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: "To Do", count: stats.todo, icon: Circle, color: "text-slate-500", bg: "bg-slate-50" },
+            { label: "In Progress", count: stats.inProgress, icon: Clock, color: "text-primary", bg: "bg-primary/8" },
+            { label: "Done", count: stats.done, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
+          ].map(({ label, count, icon: Icon, color, bg }) => (
+            <div key={label} className={cn("rounded-2xl p-4 border border-border", bg)}>
+              <div className={cn("flex items-center gap-1.5 text-xs font-medium mb-2", color)}>
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </div>
+              <div className="text-2xl font-display font-bold text-foreground">{count}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main content grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* Today's tasks */}
+          <div className="lg:col-span-2">
+            <DashboardCard
+              title="Today's Tasks"
+              action={
+                <Link href="/tasks">
+                  <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 text-xs rounded-xl gap-1">
+                    All tasks <ArrowRight className="w-3 h-3" />
+                  </Button>
+                </Link>
+              }
+            >
+              {todayTasks.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-3xl mb-3">🎉</div>
+                  <p className="font-medium text-foreground text-sm">Nothing due today!</p>
+                  <p className="text-muted-foreground text-xs mt-1">Enjoy the peace, or add something new.</p>
+                  <Button
+                    onClick={handleAddTask}
+                    size="sm"
+                    className="mt-3 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl"
+                    variant="ghost"
+                  >
+                    <Plus className="w-3.5 h-3.5 mr-1" /> Add task
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {todayTasks.map((task) => (
+                    <TaskCard key={task.id} task={task} onEdit={handleEdit} compact />
+                  ))}
+                </div>
+              )}
+            </DashboardCard>
+          </div>
+
+          {/* Calendar events */}
+          <div className="space-y-4">
+            <DashboardCard
+              title="Today"
+              action={
+                <Link href="/calendar">
+                  <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 text-xs rounded-xl gap-1">
+                    Calendar <ArrowRight className="w-3 h-3" />
+                  </Button>
+                </Link>
+              }
+            >
+              {todayEvents.length === 0 ? (
+                <div className="text-center py-4">
+                  <CalendarDays className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-xs text-muted-foreground">No events today</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {todayEvents.map((event) => (
+                    <div key={event.id} className={cn(
+                      "flex items-center gap-3 p-2.5 rounded-xl border text-sm",
+                      event.color
+                    )}>
+                      <div className="text-xs font-semibold whitespace-nowrap opacity-70">{event.time}</div>
+                      <div className="font-medium text-xs truncate">{event.title}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </DashboardCard>
+
+            <DashboardCard title="Tomorrow">
+              {tomorrowEvents.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-2">Nothing yet</p>
+              ) : (
+                <div className="space-y-2">
+                  {tomorrowEvents.map((event) => (
+                    <div key={event.id} className={cn(
+                      "flex items-center gap-3 p-2.5 rounded-xl border text-sm",
+                      event.color
+                    )}>
+                      <div className="text-xs font-semibold whitespace-nowrap opacity-70">{event.time}</div>
+                      <div className="font-medium text-xs truncate">{event.title}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </DashboardCard>
+
+            {/* Quick tip */}
+            <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl border border-primary/20 p-4">
+              <div className="flex gap-2.5">
+                <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-primary">Rosie Tip</p>
+                  <p className="text-xs text-primary/70 mt-0.5 leading-relaxed">
+                    Connect Google Calendar to see all your events right here. Setup in Settings.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <TaskModal
+        open={modalOpen}
+        onOpenChange={(open) => {
+          setModalOpen(open);
+          if (!open) setEditTask(null);
+        }}
+        task={editTask}
+      />
+    </AppShell>
   );
 }
