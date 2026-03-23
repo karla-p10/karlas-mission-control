@@ -10,6 +10,7 @@ import {
   Sparkles,
   Brain,
   X,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ interface SidebarProps {
 export function Sidebar({ onClose, mobile }: SidebarProps) {
   const pathname = usePathname();
   const tasks = useTasks((s) => s.tasks);
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   const activeTasks = tasks.filter((t) => t.status !== "done").length;
 
@@ -133,9 +134,9 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
         })}
       </nav>
 
-      {/* Footer — user info */}
-      <div className="px-4 py-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-2 px-1 py-1 rounded-xl hover:bg-sidebar-accent cursor-pointer transition-colors group">
+      {/* Footer — user info + logout */}
+      <div className="px-4 py-4 border-t border-sidebar-border space-y-2">
+        <div className="flex items-center gap-2 px-1 py-1 rounded-xl">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 overflow-hidden">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -148,7 +149,16 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
             <div className="text-sm font-medium text-sidebar-foreground truncate">{displayName}</div>
             <div className="text-[11px] text-sidebar-foreground/50 truncate">{displayEmail}</div>
           </div>
-          <Sparkles className="w-3.5 h-3.5 text-sidebar-foreground/30 group-hover:text-primary transition-colors flex-shrink-0" />
+          <button
+            onClick={async () => {
+              await signOut();
+              window.location.href = "/login";
+            }}
+            className="p-1.5 rounded-lg text-sidebar-foreground/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            title="Sign out"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </aside>

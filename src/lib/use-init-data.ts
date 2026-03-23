@@ -23,7 +23,15 @@ export function useInitData() {
     lastInitUserId.current = user.id;
 
     const init = async () => {
-      const supabase = createClient();
+      let supabase;
+      try {
+        supabase = createClient();
+      } catch (err) {
+        console.error("[init] Failed to create Supabase client:", err);
+        setUserId(user.id);
+        setInitialized(true);
+        return;
+      }
 
       try {
         // ── 1. Fetch categories ──────────────────────────────────────────
@@ -88,5 +96,17 @@ export function useInitData() {
     };
 
     init();
+
+    // Safety timeout — never hang on loading for more than 8 seconds
+    const timeout = setTimeout(() => {
+      const store = useTasks.getState();
+      if (!store.initialized) {
+        console.warn("[init] Safety timeout — forcing initialized");
+        setUserId(user.id);
+        setInitialized(true);
+      }
+    }, 8000);
+
+    return () => clearTimeout(timeout);
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 }
