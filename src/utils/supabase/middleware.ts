@@ -12,9 +12,14 @@ export const updateSession = async (request: NextRequest): Promise<{ response: N
     },
   });
 
+  // If env vars are missing, skip auth (allows build to succeed)
+  if (!supabaseUrl || !supabaseKey) {
+    return { response: supabaseResponse, user: null };
+  }
+
   const supabase = createServerClient(
-    supabaseUrl!,
-    supabaseKey!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {
