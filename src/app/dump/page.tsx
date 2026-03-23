@@ -261,17 +261,23 @@ export default function BrainDumpPage() {
   const [addedCount, setAddedCount] = useState(0);
   const [aiUsed, setAiUsed] = useState(false);
 
+  const [aiError, setAiError] = useState<string | null>(null);
+
   const handleProcess = async () => {
     if (!rawText.trim()) return;
     setPageState("loading");
+    setAiError(null);
 
     try {
       // Try AI first
       const tasks = await aiParse(rawText, categories);
       setParsedTasks(tasks);
       setAiUsed(true);
-    } catch {
+    } catch (err) {
       // Fall back to keyword parser
+      const errorMsg = err instanceof Error ? err.message : "Unknown error";
+      console.error("[Brain Dump] AI failed, using fallback:", errorMsg);
+      setAiError(errorMsg);
       const tasks = fallbackParse(rawText, categories);
       setParsedTasks(tasks);
       setAiUsed(false);
@@ -391,6 +397,11 @@ export default function BrainDumpPage() {
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Review, edit, then add what you want.
                 </p>
+                {aiError && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    ⚠️ AI unavailable ({aiError}) — using basic parser
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Button
