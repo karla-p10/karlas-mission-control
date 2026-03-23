@@ -15,62 +15,12 @@ import { useTasks, type TaskPriority } from "@/lib/store";
 import { Brain, Sparkles, RotateCcw, CheckCircle2, Plus, X, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Parser ───────────────────────────────────────────────────────────────────
-
-function guessCategory(text: string, categories: { id: string; name: string }[]): string {
-  const t = text.toLowerCase();
-  // Keyword → category id map (matches default categories)
-  const rules: [RegExp, string][] = [
-    [/grocery|supermarket|store|shop|buy|pick up|errand|pharmacy|supplies/, "errands"],
-    [/doctor|dentist|appointment|clinic|hospital|health|medicine|therapy|workout|gym|yoga|exercise|run|walk/, "health"],
-    [/school|homework|kids?|child|son|daughter|emma|jake|pickup|drop.?off|tutor|soccer|practice|game/, "kids"],
-    [/meeting|email|report|project|work|boss|client|deadline|presentation|slack|zoom|call|standup/, "work"],
-    [/clean|fix|repair|garage|house|home|laundry|dishes|vacuum|mow|lawn|paint|plumb|electric|utility|bills?/, "home"],
-    [/friend|lunch|dinner|party|catch.?up|social|personal|self|read|book|journal|relax|date/, "personal"],
-  ];
-  for (const [regex, id] of rules) {
-    if (regex.test(t)) {
-      // Make sure the category actually exists in the store
-      if (categories.find((c) => c.id === id)) return id;
-    }
-  }
-  // Fallback to first category or personal
-  return categories.find((c) => c.id === "personal")?.id ?? categories[0]?.id ?? "personal";
-}
-
-function guessPriority(text: string): TaskPriority {
-  const t = text.toLowerCase();
-  if (/urgent|asap|important|critical|immediately|today|now|!!/.test(t)) return "high";
-  if (/maybe|sometime|eventually|whenever|someday|low priority|not urgent/.test(t)) return "low";
-  return "medium";
-}
-
-function parseText(
-  raw: string,
-  categories: { id: string; name: string }[]
-): ParsedTask[] {
-  const lines = raw
-    .split(/[\n,;]+/)
-    .map((l) => l.trim())
-    .filter((l) => l.length > 2);
-
-  return lines.map((line, i) => ({
-    id: `dump-${i}-${Date.now()}`,
-    title: line
-      // Remove leading bullets / dashes / numbers
-      .replace(/^[\s\-•*\d.]+/, "")
-      .trim(),
-    category: guessCategory(line, categories),
-    priority: guessPriority(line),
-    skip: false,
-  }));
-}
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ParsedTask {
   id: string;
   title: string;
+  description?: string;
   category: string;
   priority: TaskPriority;
   skip: boolean;
@@ -84,17 +34,92 @@ const PRIORITY_LABELS: Record<TaskPriority, { label: string; className: string }
   low:    { label: "Low",    className: "bg-slate-100 text-slate-600" },
 };
 
+// ─── Fallback parser (keyword-based) ──────────────────────────────────────────
+
+function fallbackParse(
+  raw: string,
+  categories: { id: string; name: string }[]
+): ParsedTask[] {
+  const t = (s: string) => s.toLowerCase();
+  const rules: [RegExp, string][] = [
+    [/grocery|supermarket|store|shop|buy|pick up|errand|pharmacy|supplies/, "errands"],
+    [/doctor|dentist|appointment|clinic|hospital|health|medicine|therapy|workout|gym|yoga|exercise/, "health"],
+    [/school|homework|kids?|child|son|daughter|pickup|drop.?off|tutor|soccer|practice/, "kids"],
+    [/meeting|email|report|project|work|boss|client|deadline|presentation|slack|zoom/, "work"],
+    [/clean|fix|repair|garage|house|home|laundry|dishes|vacuum|mow|lawn|paint|bills?/, "home"],
+    [/friend|lunch|dinner|party|catch.?up|social|personal|self|read|book|journal/, "personal"],
+  ];
+
+  const guessCategory = (text: string) => {
+    const lower = t(text);
+    for (const [regex, id] of rules) {
+      if (regex.test(lower) && categories.find((c) => c.id === id)) return id;
+    }
+    return categories.find((c) => c.id === "personal")?.id ?? categories[0]?.id ?? "personal";
+  };
+
+  const guessPriority = (text: string): TaskPriority => {
+    const lower = t(text);
+    if (/urgent|asap|important|critical|immediately|today|now|!!/.test(lower)) return "high";
+    if (/maybe|sometime|eventually|whenever|someday|low priority|not urgent/.test(lower)) return "low";
+    return "medium";
+  };
+
+  // Split by newlines only (not commas — commas are often part of natural text)
+  const lines = raw
+    .split(/\n+/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 2);
+
+  return lines.map((line, i) => ({
+    id: `dump-${i}-${Date.now()}`,
+    title: line.replace(/^[\s\-•*\d.]+/, "").trim(),
+    category: guessCategory(line),
+    priority: guessPriority(line),
+    skip: false,
+  }));
+}
+
+// ─── AI-powered parser ────────────────────────────────────────────────────────
+
+async function aiParse(
+  raw: string,
+  categories: { id: string; name: string }[]
+): Promise<ParsedTask[]> {
+  const response = await fetch("/api/parse-dump", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text: raw,
+      categories: categories.map((c) => ({ id: c.id, name: c.name })),
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || data.fallback || !data.tasks) {
+    throw new Error(data.error || "AI unavailable");
+  }
+
+  return data.tasks.map((task: { title: string; description?: string; category: string; priority: TaskPriority }, i: number) => ({
+    id: `dump-${i}-${Date.now()}`,
+    title: task.title,
+    description: task.description,
+    category: task.category,
+    priority: task.priority,
+    skip: false,
+  }));
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function LoadingAnimation() {
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-6">
       <div className="relative">
-        {/* Pulsing brain */}
         <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center animate-pulse">
           <Brain className="w-10 h-10 text-accent" />
         </div>
-        {/* Orbiting sparkles */}
         <div className="absolute inset-0 animate-spin" style={{ animationDuration: "3s" }}>
           <Sparkles className="absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-4 text-accent/60" />
         </div>
@@ -104,7 +129,7 @@ function LoadingAnimation() {
       </div>
       <div className="text-center">
         <p className="font-display font-semibold text-foreground text-lg">🤖 Rosie is thinking...</p>
-        <p className="text-muted-foreground text-sm mt-1">Sorting through your thoughts</p>
+        <p className="text-muted-foreground text-sm mt-1">Reading through your thoughts and organizing them</p>
         <div className="flex items-center justify-center gap-1 mt-3">
           {[0, 1, 2].map((i) => (
             <div
@@ -134,7 +159,7 @@ function ParsedTaskCard({ task, categories, onChange }: ParsedTaskCardProps) {
   const priorityStyle = PRIORITY_LABELS[task.priority];
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-4 space-y-3 hover:border-primary/30 transition-colors">
+    <div className="bg-card rounded-2xl border border-border p-4 space-y-2 hover:border-primary/30 transition-colors">
       {/* Title */}
       <div className="flex items-start gap-2">
         {editingTitle ? (
@@ -157,9 +182,15 @@ function ParsedTaskCard({ task, categories, onChange }: ParsedTaskCardProps) {
         )}
       </div>
 
+      {/* Description (from AI) */}
+      {task.description && (
+        <p className="text-xs text-muted-foreground leading-relaxed pl-0.5">
+          {task.description}
+        </p>
+      )}
+
       {/* Dropdowns row */}
       <div className="flex items-center gap-2 flex-wrap">
-        {/* Category */}
         <Select
           value={task.category}
           onValueChange={(v) => v && onChange(task.id, { category: v })}
@@ -178,7 +209,6 @@ function ParsedTaskCard({ task, categories, onChange }: ParsedTaskCardProps) {
           </SelectContent>
         </Select>
 
-        {/* Priority */}
         <Select
           value={task.priority}
           onValueChange={(v) => onChange(task.id, { priority: v as TaskPriority })}
@@ -198,7 +228,6 @@ function ParsedTaskCard({ task, categories, onChange }: ParsedTaskCardProps) {
           </SelectContent>
         </Select>
 
-        {/* Skip */}
         <button
           onClick={() => onChange(task.id, { skip: true })}
           className="ml-auto h-7 px-2 text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1 rounded-lg hover:bg-destructive/10"
@@ -218,15 +247,25 @@ export default function BrainDumpPage() {
   const [rawText, setRawText] = useState("");
   const [parsedTasks, setParsedTasks] = useState<ParsedTask[]>([]);
   const [addedCount, setAddedCount] = useState(0);
+  const [aiUsed, setAiUsed] = useState(false);
 
-  const handleProcess = () => {
+  const handleProcess = async () => {
     if (!rawText.trim()) return;
     setPageState("loading");
-    setTimeout(() => {
-      const tasks = parseText(rawText, categories);
+
+    try {
+      // Try AI first
+      const tasks = await aiParse(rawText, categories);
       setParsedTasks(tasks);
-      setPageState("review");
-    }, 2000);
+      setAiUsed(true);
+    } catch {
+      // Fall back to keyword parser
+      const tasks = fallbackParse(rawText, categories);
+      setParsedTasks(tasks);
+      setAiUsed(false);
+    }
+
+    setPageState("review");
   };
 
   const handleChangeTask = (id: string, updates: Partial<ParsedTask>) => {
@@ -239,6 +278,7 @@ export default function BrainDumpPage() {
     if (!task.title.trim()) return;
     addTask({
       title: task.title,
+      description: task.description,
       category: task.category,
       priority: task.priority,
       status: "todo",
@@ -254,6 +294,7 @@ export default function BrainDumpPage() {
       if (task.title.trim()) {
         addTask({
           title: task.title,
+          description: task.description,
           category: task.category,
           priority: task.priority,
           status: "todo",
@@ -268,6 +309,7 @@ export default function BrainDumpPage() {
   const handleStartOver = () => {
     setRawText("");
     setParsedTasks([]);
+    setAiUsed(false);
     setPageState("input");
   };
 
@@ -283,7 +325,7 @@ export default function BrainDumpPage() {
             Brain Dump
           </h1>
           <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-            Your head is full. That's okay. Just get it all out — Rosie will turn the chaos into a clean task list. ✨
+            Your head is full. That&apos;s okay. Just get it all out — Rosie will turn the chaos into a clean task list. ✨
           </p>
         </div>
 
@@ -293,23 +335,13 @@ export default function BrainDumpPage() {
             <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
               <textarea
                 className="w-full p-5 text-sm text-foreground placeholder:text-muted-foreground/60 resize-none outline-none bg-transparent min-h-[260px] leading-relaxed"
-                placeholder="What's on your mind? Just dump it all here — grocery list, appointments, that thing you keep forgetting...
-
-• Pick up Emma from school
-• Dentist appointment for Jake (urgent!)
-• Send quarterly report to Sarah
-• Grocery run — need milk, eggs, bread
-• Clean out the garage sometime
-• Schedule yoga class"
+                placeholder={"Just start typing — talk to Rosie like you'd talk to a friend.\n\nExample:\nI need to meal plan for the week, I have chicken in the freezer and some veggies. Also need to call the school about Emma's field trip permission slip, that's due Friday. Oh and I keep forgetting to schedule my dentist appointment, it's been way too long..."}
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
               />
               <div className="px-5 py-3 border-t border-border bg-muted/20 flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">
-                  Separate items by line, comma, or semicolon
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {rawText.split(/[\n,;]+/).filter((l) => l.trim().length > 2).length} items detected
+                  Write naturally — Rosie understands context
                 </span>
               </div>
             </div>
@@ -323,11 +355,10 @@ export default function BrainDumpPage() {
               Let Rosie Organize This ✨
             </Button>
 
-            {/* Encouragement */}
             <div className="bg-gradient-to-br from-primary/8 to-accent/8 rounded-2xl border border-border p-4">
               <p className="text-xs text-muted-foreground leading-relaxed text-center">
-                💡 <strong>Tip:</strong> Don't overthink it. Just write whatever's in your head — messy, incomplete, whatever.
-                Rosie will sort it out. That's literally her job.
+                💡 <strong>Tip:</strong> Don&apos;t overthink it. Stream of consciousness, bullet points, half-sentences — whatever.
+                Rosie will pull out the real tasks, consolidate related thoughts, and organize everything.
               </p>
             </div>
           </div>
@@ -339,11 +370,11 @@ export default function BrainDumpPage() {
         {/* ── REVIEW STATE ── */}
         {pageState === "review" && (
           <div className="space-y-4">
-            {/* Toolbar */}
             <div className="flex items-center justify-between bg-card rounded-2xl border border-border px-4 py-3">
               <div>
                 <p className="font-semibold text-sm text-foreground">
                   {visibleTasks.length} task{visibleTasks.length !== 1 ? "s" : ""} found
+                  {aiUsed && <span className="ml-1.5 text-xs font-normal text-accent">✨ AI-organized</span>}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Review, edit, then add what you want.
@@ -369,7 +400,6 @@ export default function BrainDumpPage() {
               </div>
             </div>
 
-            {/* Task cards */}
             {visibleTasks.length === 0 ? (
               <div className="text-center py-12 bg-card rounded-2xl border border-border">
                 <div className="text-3xl mb-3">👍</div>
@@ -393,7 +423,6 @@ export default function BrainDumpPage() {
                         categories={categories}
                         onChange={handleChangeTask}
                       />
-                      {/* Individual Add button */}
                       <div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
                           size="sm"
@@ -425,7 +454,7 @@ export default function BrainDumpPage() {
                 {addedCount} task{addedCount !== 1 ? "s" : ""} added!
               </p>
               <p className="text-muted-foreground text-sm mt-2 max-w-xs mx-auto leading-relaxed">
-                Your brain is officially lighter. Rosie's got the list.
+                Your brain is officially lighter. Rosie&apos;s got the list.
               </p>
             </div>
             <div className="flex items-center justify-center gap-3">
