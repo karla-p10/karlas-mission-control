@@ -45,7 +45,7 @@ export default function DashboardPage() {
     total: tasks.length,
     done: tasks.filter((t) => t.status === "done").length,
     inProgress: tasks.filter((t) => t.status === "in-progress").length,
-    todo: tasks.filter((t) => t.status === "todo").length,
+    inbox: tasks.filter((t) => t.status === "inbox").length,
   }), [tasks]);
 
   const todayEvents = MOCK_EVENTS.filter((e) => !e.tomorrow);
@@ -96,7 +96,7 @@ export default function DashboardPage() {
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "To Do", count: stats.todo, icon: Circle, color: "text-slate-500", bg: "bg-slate-50" },
+            { label: "Inbox", count: stats.inbox, icon: Circle, color: "text-slate-500", bg: "bg-slate-50" },
             { label: "In Progress", count: stats.inProgress, icon: Clock, color: "text-primary", bg: "bg-primary/8" },
             { label: "Done", count: stats.done, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
           ].map(({ label, count, icon: Icon, color, bg }) => (

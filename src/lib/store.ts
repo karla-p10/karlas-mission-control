@@ -41,7 +41,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
 
 /** category is a category.id (string) */
 export type TaskCategory = string;
-export type TaskStatus = "todo" | "in-progress" | "done";
+export type TaskStatus = "inbox" | "in-progress" | "waiting" | "done";
 export type TaskPriority = "low" | "medium" | "high";
 
 export interface Task {
@@ -124,7 +124,7 @@ export const MOCK_TASKS: Task[] = [
     title: "School pickup — Emma & Jake",
     description: "Pick up from Lincoln Elementary at 3:15pm",
     category: "kids",
-    status: "todo",
+    status: "inbox",
     priority: "high",
     dueDate: fmt(0),
     assignee: "Karla",
@@ -135,7 +135,7 @@ export const MOCK_TASKS: Task[] = [
     title: "Grocery run",
     description: "Trader Joe's — check the shared list",
     category: "errands",
-    status: "todo",
+    status: "inbox",
     priority: "medium",
     dueDate: fmt(0),
     assignee: "Karla",
@@ -259,11 +259,13 @@ export const useTasks = create<TaskStore>()((set, get) => ({
     if (!task) return;
 
     const next: TaskStatus =
-      task.status === "todo"
+      task.status === "inbox"
         ? "in-progress"
         : task.status === "in-progress"
+        ? "waiting"
+        : task.status === "waiting"
         ? "done"
-        : "todo";
+        : "inbox";
 
     const completedAt = next === "done" ? new Date().toISOString() : undefined;
 

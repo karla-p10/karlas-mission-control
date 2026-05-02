@@ -299,7 +299,7 @@ export default function BrainDumpPage() {
       description: task.description,
       category: task.category,
       priority: task.priority,
-      status: "todo",
+      status: "inbox",
     });
     handleChangeTask(task.id, { skip: true });
   };
@@ -315,7 +315,7 @@ export default function BrainDumpPage() {
           description: task.description,
           category: task.category,
           priority: task.priority,
-          status: "todo",
+          status: "inbox",
         });
         count++;
       }

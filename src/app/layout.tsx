@@ -17,8 +17,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Rosie — Your Family Command Center",
-  description: "Task management and calendar integration for busy moms. Stay organized, stay sane.",
+  title: "Rosie — Mission Control",
+  description: "Your personal AI command center.",
   icons: {
     icon: "/favicon.ico",
   },

@@ -22,10 +22,13 @@ import {
 import { useTasks, type Task, type TaskStatus, type TaskPriority } from "@/lib/store";
 
 const STATUSES: { value: TaskStatus; label: string }[] = [
-  { value: "todo", label: "To Do" },
+  { value: "inbox", label: "Inbox" },
   { value: "in-progress", label: "In Progress" },
+  { value: "waiting", label: "Waiting" },
   { value: "done", label: "Done" },
 ];
+
+const ASSIGNEES = ["Karla", "Rosie", "Sub-agent"];
 const PRIORITIES: { value: TaskPriority; label: string }[] = [
   { value: "low", label: "Low" },
   { value: "medium", label: "Medium" },
@@ -50,7 +53,7 @@ export function TaskModal({ open, onOpenChange, task, defaultCategory }: TaskMod
     title: "",
     description: "",
     category: defaultCategory ?? firstCategoryId,
-    status: "todo" as TaskStatus,
+    status: "inbox" as TaskStatus,
     priority: "medium" as TaskPriority,
     dueDate: "",
     assignee: "Karla",
@@ -86,7 +89,7 @@ export function TaskModal({ open, onOpenChange, task, defaultCategory }: TaskMod
       status: form.status,
       priority: form.priority,
       dueDate: form.dueDate || undefined,
-      assignee: form.assignee.trim() || undefined,
+      assignee: form.assignee || undefined,
     };
 
     if (isEdit && task) {
@@ -197,14 +200,17 @@ export function TaskModal({ open, onOpenChange, task, defaultCategory }: TaskMod
 
           {/* Assignee */}
           <div className="space-y-1.5">
-            <Label htmlFor="assignee" className="text-sm font-medium">Assignee</Label>
-            <Input
-              id="assignee"
-              placeholder="Who's doing this?"
-              value={form.assignee}
-              onChange={(e) => setForm({ ...form, assignee: e.target.value })}
-              className="rounded-xl"
-            />
+            <Label className="text-sm font-medium">Assignee</Label>
+            <Select value={form.assignee} onValueChange={(v: string | null) => { if (v) setForm({ ...form, assignee: v }); }}>
+              <SelectTrigger className="rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                {ASSIGNEES.map((a) => (
+                  <SelectItem key={a} value={a}>{a}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <DialogFooter className="pt-2 gap-2">

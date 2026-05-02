@@ -12,9 +12,17 @@ import { cn } from "@/lib/utils";
 
 const STATUSES: { value: TaskStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "todo", label: "To Do" },
+  { value: "inbox", label: "Inbox" },
   { value: "in-progress", label: "In Progress" },
+  { value: "waiting", label: "Waiting" },
   { value: "done", label: "Done" },
+];
+
+const COLUMNS: { status: TaskStatus; label: string; dotClass: string }[] = [
+  { status: "inbox", label: "Inbox", dotClass: "bg-slate-400" },
+  { status: "in-progress", label: "In Progress", dotClass: "bg-primary" },
+  { status: "waiting", label: "Waiting", dotClass: "bg-amber-400" },
+  { status: "done", label: "Done", dotClass: "bg-emerald-500" },
 ];
 
 export default function TasksPage() {
@@ -36,8 +44,9 @@ export default function TasksPage() {
 
   // Group by status for kanban-like view
   const grouped = useMemo(() => ({
-    todo: filtered.filter((t) => t.status === "todo"),
+    inbox: filtered.filter((t) => t.status === "inbox"),
     "in-progress": filtered.filter((t) => t.status === "in-progress"),
+    waiting: filtered.filter((t) => t.status === "waiting"),
     done: filtered.filter((t) => t.status === "done"),
   }), [filtered]);
 
@@ -93,7 +102,6 @@ export default function TasksPage() {
               <span className="text-xs text-muted-foreground font-medium">Category</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {/* "All" pill */}
               <button
                 onClick={() => setCategoryFilter("all")}
                 className={cn(
@@ -128,7 +136,7 @@ export default function TasksPage() {
               <CheckCircle2 className="w-3 h-3 text-muted-foreground" />
               <span className="text-xs text-muted-foreground font-medium">Status</span>
             </div>
-            <div className="flex gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
               {STATUSES.map((s) => (
                 <button
                   key={s.value}
@@ -148,72 +156,47 @@ export default function TasksPage() {
         </div>
 
         {/* Task list */}
-        {filtered.length === 0 ? (
-          <div className="bg-card rounded-2xl border border-border p-12 text-center">
-            <div className="text-4xl mb-3">🔍</div>
-            <p className="font-display font-semibold text-foreground">No tasks found</p>
-            <p className="text-muted-foreground text-sm mt-1">
-              Try adjusting your filters or{" "}
-              <button onClick={handleAdd} className="text-primary hover:underline">add a new task</button>.
-            </p>
-          </div>
-        ) : statusFilter !== "all" ? (
-          // Flat list when filtering by status
-          <div className="space-y-2">
-            {filtered.map((task) => (
-              <TaskCard key={task.id} task={task} onEdit={handleEdit} />
-            ))}
-          </div>
+        {statusFilter !== "all" ? (
+          filtered.length === 0 ? (
+            <div className="bg-card rounded-2xl border border-border p-12 text-center">
+              <div className="text-4xl mb-3">🔍</div>
+              <p className="font-display font-semibold text-foreground">No tasks found</p>
+              <p className="text-muted-foreground text-sm mt-1">
+                Try adjusting your filters or{" "}
+                <button onClick={handleAdd} className="text-primary hover:underline">add a new task</button>.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filtered.map((task) => (
+                <TaskCard key={task.id} task={task} onEdit={handleEdit} />
+              ))}
+            </div>
+          )
         ) : (
-          // Grouped view
+          // Grouped kanban view — always show all 4 columns
           <div className="space-y-6">
-            {grouped.todo.length > 0 && (
-              <section>
+            {COLUMNS.map(({ status, label, dotClass }) => (
+              <section key={status}>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-slate-400" />
+                  <div className={cn("w-2 h-2 rounded-full", dotClass)} />
                   <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
-                    To Do · {grouped.todo.length}
+                    {label} · {grouped[status].length}
                   </h3>
                 </div>
-                <div className="space-y-2">
-                  {grouped.todo.map((task) => (
-                    <TaskCard key={task.id} task={task} onEdit={handleEdit} />
-                  ))}
-                </div>
+                {grouped[status].length === 0 ? (
+                  <div className="bg-card/50 rounded-xl border border-border border-dashed p-4 text-center text-sm text-muted-foreground">
+                    Nothing here yet
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {grouped[status].map((task) => (
+                      <TaskCard key={task.id} task={task} onEdit={handleEdit} />
+                    ))}
+                  </div>
+                )}
               </section>
-            )}
-
-            {grouped["in-progress"].length > 0 && (
-              <section>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-primary" />
-                  <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
-                    In Progress · {grouped["in-progress"].length}
-                  </h3>
-                </div>
-                <div className="space-y-2">
-                  {grouped["in-progress"].map((task) => (
-                    <TaskCard key={task.id} task={task} onEdit={handleEdit} />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {grouped.done.length > 0 && (
-              <section>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
-                    Done · {grouped.done.length}
-                  </h3>
-                </div>
-                <div className="space-y-2">
-                  {grouped.done.map((task) => (
-                    <TaskCard key={task.id} task={task} onEdit={handleEdit} />
-                  ))}
-                </div>
-              </section>
-            )}
+            ))}
           </div>
         )}
       </div>

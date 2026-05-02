@@ -7,10 +7,12 @@ import {
   CheckSquare,
   Calendar,
   Settings,
-  Sparkles,
   Brain,
   X,
   LogOut,
+  FolderOpen,
+  BookOpen,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,9 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dump", label: "Brain Dump", icon: Brain, special: true },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
+  { href: "/projects", label: "Projects", icon: FolderOpen },
+  { href: "/memory", label: "Memory", icon: BookOpen },
+  { href: "/docs", label: "Docs", icon: FileText },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

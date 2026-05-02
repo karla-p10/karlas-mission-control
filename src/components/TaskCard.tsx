@@ -124,7 +124,7 @@ export function TaskCard({ task, onEdit, compact }: TaskCardProps) {
             )}
             <DropdownMenuItem onClick={() => toggleTaskStatus(task.id)}>
               <CheckCircle2 className="w-3.5 h-3.5 mr-2" />
-              {isDone ? "Reopen" : task.status === "todo" ? "Start" : "Complete"}
+              {isDone ? "Reopen" : task.status === "inbox" ? "Start" : "Complete"}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
