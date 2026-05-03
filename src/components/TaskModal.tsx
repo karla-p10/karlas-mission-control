@@ -142,15 +142,17 @@ export function TaskModal({ open, onOpenChange, task, defaultCategory }: TaskMod
               <Label className="text-sm font-medium">Category</Label>
               <Select value={form.category} onValueChange={(v) => v && setForm({ ...form, category: v })}>
                 <SelectTrigger className="rounded-xl">
-                  <SelectValue />
+                  <SelectValue>
+                    {(() => {
+                      const cat = categories.find((c) => c.id === form.category);
+                      return cat ? `${cat.emoji} ${cat.name}` : "Select project";
+                    })()}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   {categories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      <span className="flex items-center gap-1.5">
-                        <span>{c.emoji}</span>
-                        <span>{c.name}</span>
-                      </span>
+                      {c.emoji} {c.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
