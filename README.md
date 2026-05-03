@@ -1,100 +1,23 @@
-# 🤖 Rosie App
+# 🎯 Karla's Mission Control
 
-**Your family command center.** Task management + Google Calendar integration built for busy moms.
+Your personal productivity dashboard — tasks, projects, memory, and docs in one place.
 
-Jetsons-inspired branding — Rosie the robot maid, keeping your household running smoothly in the 21st century.
+## Features
 
----
+- **Tasks** — Kanban board with Inbox / Todo / In Progress / Done columns, assignee support (Karla / Rosie / Sub-agent)
+- **Projects** — Categories as projects with drill-down task boards
+- **Memory** — Browse and read `memory/` files with markdown viewer
+- **Docs** — Browse workspace documentation
 
-## ✨ Features (v1)
+## Tech Stack
 
-- **Dashboard** — Personalized greeting, today's tasks at a glance, upcoming calendar events
-- **Tasks** — Full task management with categories, priorities, statuses, and due dates
-- **Calendar** — Monthly calendar view with tasks mapped to dates
-- **Settings** — Profile, notifications, Google Calendar integration (UI placeholder)
+- Next.js 14 (App Router)
+- Supabase (backend + auth)
+- Tailwind CSS + shadcn/ui
 
-## 🎨 Design
-
-- **Primary color:** Soft teal/mint (`#5BB5A2`)
-- **Accent:** Warm coral (`#FF6B6B`)
-- **Typography:** Space Grotesk (headings) + Inter (body)
-- **Style:** Rounded, friendly, sophisticated — the kind of app that makes you feel organized just looking at it
-
-## 🛠 Stack
-
-- **Next.js 14** (App Router)
-- **TypeScript**
-- **Tailwind CSS v4**
-- **shadcn/ui** (base-ui components)
-- **Zustand** (state management with localStorage persistence)
-- **date-fns** (date utilities)
-- **Lucide React** (icons)
-
-## 📁 Project Structure
-
-```
-src/
-├── app/
-│   ├── page.tsx            # Dashboard
-│   ├── tasks/page.tsx      # Tasks page
-│   ├── calendar/page.tsx   # Calendar page
-│   ├── settings/page.tsx   # Settings page
-│   ├── layout.tsx          # Root layout + fonts
-│   └── globals.css         # Theme & CSS variables
-├── components/
-│   ├── AppShell.tsx        # Main layout wrapper
-│   ├── Sidebar.tsx         # Navigation sidebar
-│   ├── TopBar.tsx          # Top navigation bar
-│   ├── TaskCard.tsx        # Individual task card
-│   ├── TaskModal.tsx       # Add/edit task dialog
-│   ├── CategoryBadge.tsx   # Task category pill
-│   ├── StatusBadge.tsx     # Task status indicator
-│   ├── DashboardCard.tsx   # Dashboard section card
-│   ├── CalendarGrid.tsx    # Monthly calendar view
-│   ├── SettingsSection.tsx # Settings section wrapper
-│   └── ui/                 # shadcn/ui components
-└── lib/
-    ├── store.ts            # Zustand store + mock data
-    └── utils.ts            # Utility functions
-```
-
-## 🚀 Getting Started
+## Getting Started
 
 ```bash
-# Install dependencies
 npm install
-
-# Start dev server
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-## 📋 Task Categories
-
-| Category | Emoji | Color |
-|----------|-------|-------|
-| Home | 🏠 | Amber |
-| Kids | 👧 | Pink |
-| Work | 💼 | Blue |
-| Personal | ✨ | Purple |
-| Health | 💚 | Green |
-| Errands | 🛒 | Orange |
-
-## 🗺 Roadmap
-
-- [ ] Google Calendar OAuth integration
-- [ ] Real-time notifications
-- [ ] Recurring tasks
-- [ ] Family member accounts (multi-user)
-- [ ] Mobile app (React Native / Expo)
-- [ ] AI task suggestions ("Looks like Jake's birthday is coming up...")
-- [ ] Voice input for quick task add
-
-## 🤖 About the Name
-
-Rosie is named after Rosie the Robot Maid from *The Jetsons* — the original household AI that kept the family organized. She did it with style and a little sass. So does this app.
-
----
-
-*Built with ❤️ for busy moms who deserve better tools.*
