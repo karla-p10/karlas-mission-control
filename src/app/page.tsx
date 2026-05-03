@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { Plus, ArrowRight, Rocket, CheckCircle2, Clock, Circle, CalendarDays, Zap, Brain } from "lucide-react";
+import { Plus, ArrowRight, Rocket, CheckCircle2, Clock, Circle, FolderOpen, Zap } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { DashboardCard } from "@/components/DashboardCard";
 import { TaskCard } from "@/components/TaskCard";
@@ -12,14 +12,6 @@ import { useTasks, type Task } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-
-// Mock upcoming events
-const MOCK_EVENTS = [
-  { id: "e1", title: "School PTA Meeting", time: "9:00 AM", color: "bg-primary/10 text-primary border-primary/20" },
-  { id: "e2", title: "Jake's Soccer Practice", time: "4:30 PM", color: "bg-pink-50 text-pink-700 border-pink-200" },
-  { id: "e3", title: "Team standup", time: "10:00 AM", color: "bg-blue-50 text-blue-700 border-blue-200", tomorrow: true },
-  { id: "e4", title: "Dentist — Emma", time: "2:00 PM", color: "bg-amber-50 text-amber-700 border-amber-200", tomorrow: true },
-];
 
 export default function DashboardPage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -48,8 +40,18 @@ export default function DashboardPage() {
     inbox: tasks.filter((t) => t.status === "inbox").length,
   }), [tasks]);
 
-  const todayEvents = MOCK_EVENTS.filter((e) => !e.tomorrow);
-  const tomorrowEvents = MOCK_EVENTS.filter((e) => e.tomorrow);
+  // Projects derived from task categories
+  const projects = useMemo(() => {
+    const map = new Map<string, { total: number; done: number }>();
+    tasks.forEach((t) => {
+      const cat = t.category || "Uncategorized";
+      if (!map.has(cat)) map.set(cat, { total: 0, done: 0 });
+      const entry = map.get(cat)!;
+      entry.total++;
+      if (t.status === "done") entry.done++;
+    });
+    return Array.from(map.entries()).slice(0, 4);
+  }, [tasks]);
 
   const handleEdit = (task: Task) => {
     setEditTask(task);
@@ -81,7 +83,7 @@ export default function DashboardPage() {
               {greeting}, {firstName}! 👋
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              {stats.done} of {stats.total} tasks done today. You&rsquo;ve got this.
+              {stats.done} of {stats.total} tasks done. {stats.inProgress > 0 ? `${stats.inProgress} in progress.` : "Ready to move something forward?"}
             </p>
           </div>
           <Button
@@ -109,26 +111,6 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
-
-        {/* Brain Dump quick action */}
-        <Link href="/dump" className="block">
-          <div className="bg-gradient-to-r from-accent/15 via-accent/10 to-primary/10 rounded-2xl border border-accent/25 p-4 hover:border-accent/40 hover:shadow-md transition-all cursor-pointer group">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-accent/20 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/30 transition-colors">
-                <Brain className="w-5 h-5 text-accent" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-sm text-foreground">Got a lot on your mind?</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Dump it all out — Rosie will sort it into tasks for you. ✨
-                </p>
-              </div>
-              <div className="flex items-center gap-1 text-accent text-xs font-medium group-hover:gap-2 transition-all">
-                Brain Dump <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-          </div>
-        </Link>
 
         {/* Main content grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -168,52 +150,44 @@ export default function DashboardPage() {
             </DashboardCard>
           </div>
 
-          {/* Calendar events */}
+          {/* Right column */}
           <div className="space-y-4">
+            {/* Projects overview */}
             <DashboardCard
-              title="Today"
+              title="Projects"
               action={
-                <Link href="/calendar">
+                <Link href="/projects">
                   <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 text-xs rounded-xl gap-1">
-                    Calendar <ArrowRight className="w-3 h-3" />
+                    View all <ArrowRight className="w-3 h-3" />
                   </Button>
                 </Link>
               }
             >
-              {todayEvents.length === 0 ? (
+              {projects.length === 0 ? (
                 <div className="text-center py-4">
-                  <CalendarDays className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
-                  <p className="text-xs text-muted-foreground">No events today</p>
+                  <FolderOpen className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-xs text-muted-foreground">No projects yet</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Add tasks with categories to see projects here</p>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {todayEvents.map((event) => (
-                    <div key={event.id} className={cn(
-                      "flex items-center gap-3 p-2.5 rounded-xl border text-sm",
-                      event.color
-                    )}>
-                      <div className="text-xs font-semibold whitespace-nowrap opacity-70">{event.time}</div>
-                      <div className="font-medium text-xs truncate">{event.title}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </DashboardCard>
-
-            <DashboardCard title="Tomorrow">
-              {tomorrowEvents.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-2">Nothing yet</p>
-              ) : (
-                <div className="space-y-2">
-                  {tomorrowEvents.map((event) => (
-                    <div key={event.id} className={cn(
-                      "flex items-center gap-3 p-2.5 rounded-xl border text-sm",
-                      event.color
-                    )}>
-                      <div className="text-xs font-semibold whitespace-nowrap opacity-70">{event.time}</div>
-                      <div className="font-medium text-xs truncate">{event.title}</div>
-                    </div>
-                  ))}
+                <div className="space-y-2.5">
+                  {projects.map(([name, { total, done }]) => {
+                    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+                    return (
+                      <div key={name} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-foreground truncate">{name}</span>
+                          <span className="text-muted-foreground ml-2 flex-shrink-0">{done}/{total}</span>
+                        </div>
+                        <div className="h-1.5 bg-border rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary rounded-full transition-all"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </DashboardCard>
@@ -223,9 +197,9 @@ export default function DashboardPage() {
               <div className="flex gap-2.5">
                 <Zap className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-primary">Rosie Tip</p>
+                  <p className="text-sm font-semibold text-primary">Quick tip</p>
                   <p className="text-xs text-primary/70 mt-0.5 leading-relaxed">
-                    Connect Google Calendar to see all your events right here. Setup in Settings.
+                    Browse your memory files and docs from the sidebar to stay in context.
                   </p>
                 </div>
               </div>

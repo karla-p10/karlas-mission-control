@@ -5,9 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   CheckSquare,
-  Calendar,
   Settings,
-  Brain,
   X,
   LogOut,
   FolderOpen,
@@ -21,12 +19,10 @@ import { useAuth } from "@/lib/auth-context";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dump", label: "Brain Dump", icon: Brain, special: true },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/projects", label: "Projects", icon: FolderOpen },
   { href: "/memory", label: "Memory", icon: BookOpen },
   { href: "/docs", label: "Docs", icon: FileText },
-  { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -72,7 +68,7 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
           </div>
           <div>
             <div className="font-display font-bold text-sidebar-foreground text-lg leading-none">Rosie</div>
-            <div className="text-[10px] text-sidebar-foreground/50 mt-0.5 tracking-widest uppercase">Home Base</div>
+            <div className="text-[10px] text-sidebar-foreground/50 mt-0.5 tracking-widest uppercase">Mission Control</div>
           </div>
         </div>
         {mobile && (
@@ -89,28 +85,8 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ href, label, icon: Icon, special }) => {
+        {navItems.map(({ href, label, icon: Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
-
-          if (special) {
-            return (
-              <Link
-                key={href}
-                href={href}
-                onClick={onClose}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                  active
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary"
-                    : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent border border-sidebar-border"
-                )}
-              >
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                {label}
-                <span className="ml-auto text-[11px]">✨</span>
-              </Link>
-            );
-          }
 
           return (
             <Link
