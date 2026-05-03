@@ -31,7 +31,7 @@ export default function CalendarPage() {
           </div>
           <Button
             onClick={() => setModalOpen(true)}
-            className="bg-primary hover:bg-primary/90 text-white rounded-xl gap-2 shadow-lg shadow-primary/20"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-2 shadow-lg shadow-primary/20"
           >
             <Plus className="w-4 h-4" />
             Add Task
@@ -47,25 +47,25 @@ export default function CalendarPage() {
           {/* Sidebar */}
           <div className="space-y-4">
             {/* Google Calendar CTA */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-4">
+            <div className="bg-gradient-to-br from-[#F0E8DC] to-[#F0EBE1] rounded-2xl border border-[#E8E0D0] p-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shadow-sm border border-blue-100">
-                  <CalendarIcon className="w-3.5 h-3.5 text-blue-600" />
+                <div className="w-7 h-7 bg-[#FAF7F2] rounded-lg flex items-center justify-center shadow-sm border border-[#E8E0D0]">
+                  <CalendarIcon className="w-3.5 h-3.5 text-[#8B7355]" />
                 </div>
-                <span className="font-semibold text-sm text-blue-900">Google Calendar</span>
+                <span className="font-semibold text-sm text-[#2C2A25]">Google Calendar</span>
               </div>
-              <p className="text-xs text-blue-700 mb-3 leading-relaxed">
+              <p className="text-xs text-[#6B6355] mb-3 leading-relaxed">
                 Connect to see all your events in one place. Never double-book again.
               </p>
               <Button
                 size="sm"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-1.5 text-xs"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-1.5 text-xs"
                 onClick={() => {}}
               >
                 <RefreshCw className="w-3 h-3" />
                 Connect Google Calendar
               </Button>
-              <p className="text-[10px] text-blue-500 mt-2 text-center">Setup in Settings → Integrations</p>
+              <p className="text-[10px] text-[#6B6355]/70 mt-2 text-center">Setup in Settings → Integrations</p>
             </div>
 
             {/* Upcoming tasks */}

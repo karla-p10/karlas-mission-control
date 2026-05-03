@@ -35,7 +35,7 @@ export default function LoginPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center animate-pulse">
-            <span className="text-white text-lg font-bold font-display">R</span>
+            <span className="text-primary-foreground text-lg font-bold font-display">R</span>
           </div>
           <p className="text-muted-foreground text-sm">Loading...</p>
         </div>
@@ -50,7 +50,7 @@ export default function LoginPage() {
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center">
             <div className="relative w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-2xl shadow-primary/30">
-              <span className="text-white text-3xl font-display font-bold leading-none">R</span>
+              <span className="text-primary-foreground text-3xl font-display font-bold leading-none">R</span>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full border-2 border-background" />
             </div>
           </div>

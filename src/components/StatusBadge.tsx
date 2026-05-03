@@ -8,8 +8,8 @@ const statusConfig: Record<TaskStatus, {
   text: string;
   Icon: React.ElementType;
 }> = {
-  "inbox":       { label: "Inbox",       bg: "bg-slate-100",   text: "text-slate-600",   Icon: Circle       },
-  "in-progress": { label: "In Progress", bg: "bg-teal-50",     text: "text-teal-700",    Icon: Clock        },
+  "inbox":       { label: "Inbox",       bg: "bg-[#F0EBE1]",   text: "text-[#6B6355]",   Icon: Circle       },
+  "in-progress": { label: "In Progress", bg: "bg-[#F0E8DC]",   text: "text-[#8B7355]",   Icon: Clock        },
   "waiting":     { label: "Waiting",     bg: "bg-amber-50",    text: "text-amber-700",   Icon: Hourglass    },
   "done":        { label: "Done",        bg: "bg-emerald-50",  text: "text-emerald-700", Icon: CheckCircle2 },
 };

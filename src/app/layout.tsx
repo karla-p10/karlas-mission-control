@@ -17,8 +17,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Rosie — Mission Control",
-  description: "Your personal AI command center.",
+  title: "Rosie",
+  description: "Your personal home base.",
   icons: {
     icon: "/favicon.ico",
   },

@@ -74,7 +74,7 @@ export default function ProjectsPage() {
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left",
                 selectedProject === null
-                  ? "bg-primary text-white shadow-sm shadow-primary/20"
+                  ? "bg-[#F0E8DC] text-[#8B7355] border-l-2 border-[#8B7355]"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
@@ -131,7 +131,7 @@ export default function ProjectsPage() {
                 </div>
                 <Button
                   onClick={handleAdd}
-                  className="bg-primary hover:bg-primary/90 text-white rounded-xl gap-2 shadow-lg shadow-primary/20"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-2 shadow-lg shadow-primary/20"
                 >
                   <Plus className="w-4 h-4" />
                   Add Task
@@ -211,7 +211,7 @@ export default function ProjectsPage() {
                 </div>
                 <Button
                   onClick={handleAdd}
-                  className="bg-primary hover:bg-primary/90 text-white rounded-xl gap-2 shadow-lg shadow-primary/20"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-2 shadow-lg shadow-primary/20"
                 >
                   <Plus className="w-4 h-4" />
                   Add Task

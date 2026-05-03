@@ -75,7 +75,7 @@ export default function TasksPage() {
           </div>
           <Button
             onClick={handleAdd}
-            className="bg-primary hover:bg-primary/90 text-white rounded-xl gap-2 shadow-lg shadow-primary/20"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-2 shadow-lg shadow-primary/20"
           >
             <Plus className="w-4 h-4" />
             Add Task
@@ -107,7 +107,7 @@ export default function TasksPage() {
                 className={cn(
                   "px-3 py-1 rounded-full text-xs font-medium transition-all",
                   categoryFilter === "all"
-                    ? "bg-primary text-white shadow-sm shadow-primary/20"
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                     : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                 )}
               >
@@ -120,7 +120,7 @@ export default function TasksPage() {
                   className={cn(
                     "px-3 py-1 rounded-full text-xs font-medium transition-all",
                     categoryFilter === cat.id
-                      ? "bg-primary text-white shadow-sm shadow-primary/20"
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                       : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                   )}
                 >
@@ -144,7 +144,7 @@ export default function TasksPage() {
                   className={cn(
                     "px-3 py-1 rounded-full text-xs font-medium transition-all",
                     statusFilter === s.value
-                      ? "bg-primary text-white shadow-sm shadow-primary/20"
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                       : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                   )}
                 >

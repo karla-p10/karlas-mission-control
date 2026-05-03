@@ -66,13 +66,13 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
       <div className="flex items-center justify-between px-5 py-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           {/* Rosie logo mark */}
-          <div className="relative w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 flex-shrink-0">
-            <span className="text-white text-lg font-display font-bold leading-none">R</span>
-            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-accent rounded-full border-2 border-sidebar" />
+          <div className="relative w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm flex-shrink-0">
+            <span className="text-primary-foreground text-lg font-display font-bold leading-none">R</span>
+            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-[#C17B4A] rounded-full border-2 border-sidebar" />
           </div>
           <div>
-            <div className="font-display font-bold text-white text-lg leading-none">Rosie</div>
-            <div className="text-[10px] text-sidebar-foreground/50 mt-0.5 tracking-widest uppercase">Command Center</div>
+            <div className="font-display font-bold text-sidebar-foreground text-lg leading-none">Rosie</div>
+            <div className="text-[10px] text-sidebar-foreground/50 mt-0.5 tracking-widest uppercase">Home Base</div>
           </div>
         </div>
         {mobile && (
@@ -101,8 +101,8 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                   active
-                    ? "bg-accent text-white shadow-sm shadow-accent/20"
-                    : "text-accent/90 hover:text-accent hover:bg-accent/10 border border-accent/20"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary"
+                    : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent border border-sidebar-border"
                 )}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
@@ -120,16 +120,18 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 active
-                  ? "bg-primary text-white shadow-sm shadow-primary/20"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-primary"
                   : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
               )}
             >
-              <Icon className={cn("w-4 h-4 flex-shrink-0", active ? "text-white" : "")} />
+              <Icon className={cn("w-4 h-4 flex-shrink-0", active ? "text-primary" : "")} />
               {label}
               {label === "Tasks" && activeTasks > 0 && (
                 <span className={cn(
                   "ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full",
-                  active ? "bg-white/20 text-white" : "bg-sidebar-accent text-sidebar-foreground/60"
+                  active
+                    ? "bg-primary/15 text-primary"
+                    : "bg-sidebar-border text-sidebar-foreground/60"
                 )}>
                   {activeTasks}
                 </span>
@@ -147,7 +149,7 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-white text-xs font-bold">{initial}</span>
+              <span className="text-primary-foreground text-xs font-bold">{initial}</span>
             )}
           </div>
           <div className="flex-1 min-w-0">
@@ -159,7 +161,7 @@ export function Sidebar({ onClose, mobile }: SidebarProps) {
               await signOut();
               window.location.href = "/login";
             }}
-            className="p-1.5 rounded-lg text-sidebar-foreground/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            className="p-1.5 rounded-lg text-sidebar-foreground/40 hover:text-red-500 hover:bg-red-50 transition-colors"
             title="Sign out"
           >
             <LogOut className="w-4 h-4" />

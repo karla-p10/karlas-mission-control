@@ -86,7 +86,7 @@ export default function DashboardPage() {
           </div>
           <Button
             onClick={handleAddTask}
-            className="bg-primary hover:bg-primary/90 text-white rounded-xl gap-2 hidden sm:flex shadow-lg shadow-primary/20"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-2 hidden sm:flex shadow-lg shadow-primary/20"
           >
             <Plus className="w-4 h-4" />
             Add Task

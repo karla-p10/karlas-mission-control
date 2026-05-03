@@ -224,7 +224,7 @@ export function TaskModal({ open, onOpenChange, task, defaultCategory }: TaskMod
             </Button>
             <Button
               type="submit"
-              className="rounded-xl bg-primary hover:bg-primary/90 text-white"
+              className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground"
               disabled={!form.title.trim()}
             >
               {isEdit ? "Save Changes" : "Add Task"}

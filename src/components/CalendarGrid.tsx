@@ -103,7 +103,7 @@ export function CalendarGrid() {
                   <div className={cn(
                     "w-6 h-6 rounded-full text-xs flex items-center justify-center font-medium mx-auto mb-1",
                     isTodayDay
-                      ? "bg-primary text-white font-semibold"
+                      ? "bg-primary text-primary-foreground font-semibold"
                       : isCurrentMonth
                       ? "text-foreground"
                       : "text-muted-foreground/50"

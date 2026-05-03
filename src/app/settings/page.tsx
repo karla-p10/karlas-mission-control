@@ -105,7 +105,7 @@ function CategoryCard({ cat }: { cat: Category }) {
         <div className="flex gap-2 pt-1">
           <Button
             size="sm"
-            className="rounded-xl bg-primary text-white flex-1"
+            className="rounded-xl bg-primary text-primary-foreground flex-1"
             onClick={handleSave}
           >
             <Check className="w-4 h-4 mr-1" /> Save
@@ -292,7 +292,7 @@ function AddCategoryRow() {
           </Button>
           <Button
             size="sm"
-            className="rounded-xl bg-primary text-white"
+            className="rounded-xl bg-primary text-primary-foreground"
             onClick={handleAdd}
             disabled={!name.trim()}
           >
@@ -365,13 +365,13 @@ export default function SettingsPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <AvatarFallback className="bg-primary text-white text-xl font-bold">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xl font-bold">
                       {name.charAt(0) || "?"}
                     </AvatarFallback>
                   )}
                 </Avatar>
                 <button className="absolute bottom-0 right-0 w-6 h-6 bg-primary rounded-full flex items-center justify-center border-2 border-background shadow-sm hover:bg-primary/90 transition-colors">
-                  <Camera className="w-3 h-3 text-white" />
+                  <Camera className="w-3 h-3 text-primary-foreground" />
                 </button>
               </div>
               <div>
@@ -448,12 +448,12 @@ export default function SettingsPage() {
           <div className="px-6 py-5">
             <div className={cn(
               "rounded-2xl border p-4",
-              calendarConnected ? "border-emerald-200 bg-emerald-50" : "border-blue-200 bg-blue-50"
+              calendarConnected ? "border-emerald-200 bg-emerald-50" : "border-[#E8E0D0] bg-[#F0E8DC]"
             )}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm border border-border flex-shrink-0 mt-0.5">
-                    <Calendar className="w-4.5 h-4.5 text-blue-600" />
+                    <Calendar className="w-4.5 h-4.5 text-[#8B7355]" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -476,7 +476,7 @@ export default function SettingsPage() {
                   variant={calendarConnected ? "outline" : "default"}
                   className={cn(
                     "rounded-xl gap-1.5 text-xs flex-shrink-0",
-                    !calendarConnected && "bg-blue-600 hover:bg-blue-700 text-white"
+                    !calendarConnected && "bg-primary hover:bg-primary/90 text-primary-foreground"
                   )}
                 >
                   {calendarConnected ? (
@@ -492,8 +492,8 @@ export default function SettingsPage() {
               </div>
 
               {!calendarConnected && (
-                <div className="mt-3 pt-3 border-t border-blue-200">
-                  <p className="text-[11px] text-blue-600">
+                <div className="mt-3 pt-3 border-t border-[#E8E0D0]">
+                  <p className="text-[11px] text-[#6B6355]">
                     🔒 Secure OAuth 2.0 connection. Rosie only reads your calendar — it never modifies events without your permission.
                   </p>
                 </div>

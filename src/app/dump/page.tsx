@@ -239,7 +239,7 @@ function ParsedTaskCard({ task, categories, onChange, onAdd }: ParsedTaskCardPro
           {onAdd && (
             <Button
               size="sm"
-              className="h-7 rounded-lg text-xs bg-primary hover:bg-primary/90 text-white gap-1"
+              className="h-7 rounded-lg text-xs bg-primary hover:bg-primary/90 text-primary-foreground gap-1"
               onClick={() => onAdd(task)}
             >
               <Plus className="w-3 h-3" /> Add
@@ -367,7 +367,7 @@ export default function BrainDumpPage() {
             <Button
               onClick={handleProcess}
               disabled={!rawText.trim()}
-              className="w-full rounded-xl bg-accent hover:bg-accent/90 text-white gap-2 h-12 text-base shadow-lg shadow-accent/20 font-semibold"
+              className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-12 text-base shadow-lg shadow-primary/20 font-semibold"
             >
               <Sparkles className="w-5 h-5" />
               Let Rosie Organize This ✨
@@ -416,7 +416,7 @@ export default function BrainDumpPage() {
                   size="sm"
                   onClick={handleAddAll}
                   disabled={visibleTasks.length === 0}
-                  className="rounded-xl gap-1.5 text-xs bg-primary hover:bg-primary/90 text-white"
+                  className="rounded-xl gap-1.5 text-xs bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add All ({visibleTasks.length})
                 </Button>
@@ -480,7 +480,7 @@ export default function BrainDumpPage() {
                 <RotateCcw className="w-3.5 h-3.5" /> Dump more
               </Button>
               <Button
-                className="rounded-xl gap-2 bg-primary hover:bg-primary/90 text-white"
+                className="rounded-xl gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                 onClick={() => window.location.href = "/tasks"}
               >
                 View tasks <ChevronRight className="w-3.5 h-3.5" />

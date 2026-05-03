@@ -63,7 +63,7 @@ export function TopBar({ onMenuClick, onAddTask }: TopBarProps) {
         {onAddTask && (
           <Button
             size="sm"
-            className="bg-primary hover:bg-primary/90 text-white rounded-xl gap-1.5 hidden sm:flex"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-1.5 hidden sm:flex"
             onClick={onAddTask}
           >
             <Plus className="w-3.5 h-3.5" />
@@ -81,7 +81,7 @@ export function TopBar({ onMenuClick, onAddTask }: TopBarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger className="rounded-full p-0.5 flex items-center justify-center hover:ring-2 hover:ring-primary/20 transition-all">
             <Avatar className="w-8 h-8">
-              <AvatarFallback className="bg-primary text-white text-xs font-bold">K</AvatarFallback>
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">K</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 rounded-xl">

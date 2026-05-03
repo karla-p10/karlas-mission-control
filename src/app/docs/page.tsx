@@ -245,7 +245,7 @@ export default function DocsPage() {
                       </Button>
                       <Button
                         size="sm"
-                        className="rounded-xl gap-1.5 bg-primary hover:bg-primary/90 text-white"
+                        className="rounded-xl gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground"
                         onClick={handleSave}
                         disabled={saving}
                       >
