@@ -56,4 +56,18 @@ test.describe('Visual / theme checks', () => {
     expect(rootBg).not.toBe('rgb(0, 0, 0)');
     expect(rootBg).not.toBe('rgb(13, 13, 26)');
   });
+
+  test('login page does NOT show "busy moms" anywhere', async ({ page }) => {
+    await page.goto('/login');
+
+    const bodyText = await page.locator('body').innerText();
+    expect(bodyText).not.toMatch(/busy moms/i);
+  });
+
+  test('login page shows "Karla\'s Mission Control"', async ({ page }) => {
+    await page.goto('/login');
+
+    const bodyText = await page.locator('body').innerText();
+    expect(bodyText).toContain("Karla's Mission Control");
+  });
 });

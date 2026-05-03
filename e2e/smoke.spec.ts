@@ -17,6 +17,57 @@ test.describe('Smoke Tests (no auth required)', () => {
     await expect(signInButton.first()).toBeVisible();
   });
 
+  test('login page renders "Continue with Google" button (no raw UUIDs)', async ({ page }) => {
+    await page.goto('/login');
+
+    // The button should say "Continue with Google" (or similar)
+    const googleButton = page.locator('button:has-text("Continue with Google")');
+    await expect(googleButton).toBeVisible();
+
+    // The page should NOT expose raw UUIDs in visible text
+    const pageText = await page.locator('body').innerText();
+    const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+    expect(uuidPattern.test(pageText)).toBe(false);
+  });
+
+  test('login page subtitle says "Karla\'s Mission Control"', async ({ page }) => {
+    await page.goto('/login');
+
+    // Wait for the page to hydrate — look for a known stable element
+    await page.waitForLoadState('networkidle');
+
+    // Subtitle / tagline should reflect the correct app identity
+    const bodyText = await page.locator('body').innerText();
+    expect(bodyText).toContain("Karla's Mission Control");
+
+    // Must NOT contain old branding
+    expect(bodyText).not.toMatch(/Family Command Center/i);
+    expect(bodyText).not.toMatch(/busy moms/i);
+  });
+
+  test('login page footer does NOT contain "busy moms"', async ({ page }) => {
+    await page.goto('/login');
+
+    // Check footer or bottom-of-page text
+    const footerLocators = [
+      page.locator('footer'),
+      page.locator('[class*="footer"]'),
+      page.locator('[class*="Footer"]'),
+    ];
+
+    for (const locator of footerLocators) {
+      const count = await locator.count();
+      if (count > 0) {
+        const text = await locator.first().innerText();
+        expect(text).not.toMatch(/busy moms/i);
+      }
+    }
+
+    // Also check full page text
+    const bodyText = await page.locator('body').innerText();
+    expect(bodyText).not.toMatch(/busy moms/i);
+  });
+
   test('unauthenticated redirect: /tasks → /login', async ({ page }) => {
     await page.goto('/tasks');
     await expect(page).toHaveURL(/\/login/);
