@@ -621,7 +621,7 @@ export default function SettingsPage() {
 
         {/* Version footer */}
         <p className="text-center text-xs text-muted-foreground py-2">
-          Rosie v1.0.0 · Made with ❤️ for busy moms
+          Mission Control v1.0.0
         </p>
       </div>
     </AppShell>
