@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, FolderOpen, FolderPlus, X } from "lucide-react";
+import { Plus, FolderOpen, FolderPlus, X, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { TaskCard } from "@/components/TaskCard";
 import { TaskModal } from "@/components/TaskModal";
@@ -21,6 +21,7 @@ const COLUMNS: { status: TaskStatus; label: string; dotClass: string }[] = [
 
 export default function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [mobileView, setMobileView] = useState<"list" | "board">("list");
   const [modalOpen, setModalOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [newProjectOpen, setNewProjectOpen] = useState(false);
@@ -28,6 +29,11 @@ export default function ProjectsPage() {
   const [newProjectEmoji, setNewProjectEmoji] = useState("📁");
   const [newProjectColor, setNewProjectColor] = useState<keyof typeof COLOR_MAP>("purple");
   const { tasks, categories, addCategory } = useTasks();
+
+  const handleSelectProject = (id: string | null) => {
+    setSelectedProject(id);
+    setMobileView(id !== null ? "board" : "list");
+  };
 
   const handleCreateProject = () => {
     const name = newProjectName.trim();
@@ -78,7 +84,7 @@ export default function ProjectsPage() {
     <AppShell onAddTask={handleAdd}>
       <div className="flex h-full">
         {/* Left sidebar — project list */}
-        <aside className="w-64 flex-shrink-0 border-r border-border bg-card/50 flex flex-col">
+        <aside className={`w-full lg:w-64 flex-shrink-0 border-r border-border bg-card/50 flex-col ${mobileView === "list" ? "flex" : "hidden"} lg:flex`}>
           <div className="p-4 border-b border-border space-y-3">
             <div className="flex items-center justify-between">
               <div>
@@ -161,7 +167,7 @@ export default function ProjectsPage() {
           <nav className="flex-1 overflow-y-auto p-3 space-y-1">
             {/* All Projects */}
             <button
-              onClick={() => setSelectedProject(null)}
+              onClick={() => handleSelectProject(null)}
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left",
                 selectedProject === null
@@ -179,7 +185,7 @@ export default function ProjectsPage() {
               return (
                 <button
                   key={proj.id}
-                  onClick={() => setSelectedProject(proj.id)}
+                  onClick={() => handleSelectProject(proj.id)}
                   className={cn(
                     "w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-xl text-sm transition-all text-left",
                     isActive
@@ -209,7 +215,7 @@ export default function ProjectsPage() {
         </aside>
 
         {/* Right panel */}
-        <div className="flex-1 overflow-y-auto">
+        <div className={`flex-1 overflow-y-auto ${mobileView === "board" ? "block" : "hidden"} lg:block`}>
           {selectedProject === null ? (
             // All Projects grid view
             <div className="p-6 max-w-5xl mx-auto space-y-5">
@@ -245,7 +251,7 @@ export default function ProjectsPage() {
                   return (
                     <button
                       key={proj.id}
-                      onClick={() => setSelectedProject(proj.id)}
+                      onClick={() => handleSelectProject(proj.id)}
                       className="bg-card rounded-2xl border border-border p-5 text-left hover:border-primary/40 hover:shadow-md transition-all group"
                     >
                       <div className="flex items-center gap-3 mb-3">
@@ -299,6 +305,15 @@ export default function ProjectsPage() {
           ) : (
             // Single project kanban view
             <div className="p-6 max-w-5xl mx-auto space-y-5">
+              {/* Mobile back button */}
+              <button
+                onClick={() => handleSelectProject(null)}
+                className="flex lg:hidden items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors -mt-1 mb-1"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Projects
+              </button>
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">{selectedCategory?.emoji}</span>

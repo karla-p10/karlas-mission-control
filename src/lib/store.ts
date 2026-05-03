@@ -29,12 +29,11 @@ export const COLOR_MAP: Record<string, { bg: string; text: string; dot: string }
 };
 
 export const DEFAULT_CATEGORIES: Category[] = [
-  { id: "home",     name: "Home",     emoji: "🏠", color: "amber"  },
-  { id: "kids",     name: "Kids",     emoji: "👧", color: "pink"   },
-  { id: "work",     name: "Work",     emoji: "💼", color: "blue"   },
-  { id: "personal", name: "Personal", emoji: "✨", color: "purple" },
-  { id: "health",   name: "Health",   emoji: "💚", color: "green"  },
-  { id: "errands",  name: "Errands",  emoji: "🛒", color: "orange" },
+  { id: "blazel",   name: "Blazel",      emoji: "⚡", color: "blue"   },
+  { id: "revx",     name: "RevX Global", emoji: "🚀", color: "purple" },
+  { id: "gabriel",  name: "Gabriel",     emoji: "🎯", color: "amber"  },
+  { id: "content",  name: "Content",     emoji: "📝", color: "teal"   },
+  { id: "personal", name: "Personal",    emoji: "✨", color: "pink"   },
 ];
 
 // ─── Task ─────────────────────────────────────────────────────────────────────
