@@ -56,7 +56,7 @@ export default function LoginPage() {
           </div>
           <div>
             <h1 className="font-display text-3xl font-bold text-foreground">Rosie</h1>
-            <p className="text-muted-foreground text-sm mt-1">Your Family Command Center</p>
+            <p className="text-muted-foreground text-sm mt-1">Karla's Mission Control</p>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ export default function LoginPage() {
           <div className="space-y-1.5">
             <h2 className="font-display text-xl font-bold text-foreground">Welcome back</h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Sign in to access your tasks, calendar, and family command center.
+              Sign in to access your tasks, projects, memory, and docs.
             </p>
           </div>
 
@@ -121,7 +121,7 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground/60">
           <Sparkles className="w-3 h-3" />
-          <span>Made with love for busy moms</span>
+          <span>Powered by Rosie 🌹</span>
         </div>
       </div>
     </div>
