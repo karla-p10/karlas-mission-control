@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Plus, FolderOpen } from "lucide-react";
+import { Plus, FolderOpen, FolderPlus, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { TaskCard } from "@/components/TaskCard";
 import { TaskModal } from "@/components/TaskModal";
 import { Button } from "@/components/ui/button";
 import { useTasks, type Task, type TaskStatus, COLOR_MAP } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+const EMOJI_OPTIONS = ["📁", "🚀", "💡", "🎯", "⚡", "🛠️", "📝", "🌿", "💼", "🔥", "🎨", "📊"];
+const COLOR_OPTIONS = Object.keys(COLOR_MAP) as (keyof typeof COLOR_MAP)[];
 
 const COLUMNS: { status: TaskStatus; label: string; dotClass: string }[] = [
   { status: "inbox", label: "Inbox", dotClass: "bg-slate-400" },
@@ -20,7 +23,21 @@ export default function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
-  const { tasks, categories } = useTasks();
+  const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectEmoji, setNewProjectEmoji] = useState("📁");
+  const [newProjectColor, setNewProjectColor] = useState<keyof typeof COLOR_MAP>("purple");
+  const { tasks, categories, addCategory } = useTasks();
+
+  const handleCreateProject = () => {
+    const name = newProjectName.trim();
+    if (!name) return;
+    addCategory({ name, emoji: newProjectEmoji, color: newProjectColor });
+    setNewProjectName("");
+    setNewProjectEmoji("📁");
+    setNewProjectColor("purple");
+    setNewProjectOpen(false);
+  };
 
   // Build project stats
   const projectStats = useMemo(() => {
@@ -62,9 +79,83 @@ export default function ProjectsPage() {
       <div className="flex h-full">
         {/* Left sidebar — project list */}
         <aside className="w-64 flex-shrink-0 border-r border-border bg-card/50 flex flex-col">
-          <div className="p-4 border-b border-border">
-            <h2 className="font-display font-bold text-foreground">Projects</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">{categories.length} categories</p>
+          <div className="p-4 border-b border-border space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display font-bold text-foreground">Projects</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">{categories.length} project{categories.length !== 1 ? "s" : ""}</p>
+              </div>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="w-8 h-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl"
+                onClick={() => setNewProjectOpen((v) => !v)}
+                title="New project"
+              >
+                <FolderPlus className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Inline new project form */}
+            {newProjectOpen && (
+              <div className="bg-background rounded-xl border border-border p-3 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-foreground">New Project</span>
+                  <button onClick={() => setNewProjectOpen(false)} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {/* Emoji picker */}
+                <div className="flex flex-wrap gap-1">
+                  {EMOJI_OPTIONS.map((em) => (
+                    <button
+                      key={em}
+                      onClick={() => setNewProjectEmoji(em)}
+                      className={cn(
+                        "w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-all",
+                        newProjectEmoji === em ? "bg-primary/15 ring-1 ring-primary" : "hover:bg-muted"
+                      )}
+                    >
+                      {em}
+                    </button>
+                  ))}
+                </div>
+                {/* Name input */}
+                <input
+                  autoFocus
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleCreateProject()}
+                  placeholder="Project name..."
+                  className="w-full text-sm bg-muted/50 border border-border rounded-lg px-3 py-1.5 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-foreground placeholder:text-muted-foreground"
+                />
+                {/* Color picker */}
+                <div className="flex gap-1">
+                  {COLOR_OPTIONS.map((col) => {
+                    const c = COLOR_MAP[col];
+                    return (
+                      <button
+                        key={col}
+                        onClick={() => setNewProjectColor(col)}
+                        className={cn(
+                          "w-5 h-5 rounded-full transition-all",
+                          c.dot,
+                          newProjectColor === col ? "ring-2 ring-offset-1 ring-primary scale-110" : "opacity-60 hover:opacity-100"
+                        )}
+                      />
+                    );
+                  })}
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handleCreateProject}
+                  disabled={!newProjectName.trim()}
+                  className="w-full h-7 text-xs bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg"
+                >
+                  Create Project
+                </Button>
+              </div>
+            )}
           </div>
 
           <nav className="flex-1 overflow-y-auto p-3 space-y-1">
@@ -129,13 +220,23 @@ export default function ProjectsPage() {
                     {tasks.filter((t) => t.status !== "done").length} active tasks across {categories.length} projects
                   </p>
                 </div>
-                <Button
-                  onClick={handleAdd}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-2 shadow-lg shadow-primary/20"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Task
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setNewProjectOpen(true)}
+                    variant="outline"
+                    className="rounded-xl gap-2 border-border"
+                  >
+                    <FolderPlus className="w-4 h-4" />
+                    New Project
+                  </Button>
+                  <Button
+                    onClick={handleAdd}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-2 shadow-lg shadow-primary/20"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Task
+                  </Button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
